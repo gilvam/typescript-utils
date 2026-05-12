@@ -41,3 +41,4 @@ You can import any utility function directly into your project:
 ```typescript
 import { convertKeysToCamelCase } from './src/object/ObjectUtil';
 ```
+adicione as pastas .claude/skills e .devin/skills tendo na pasta skills um symbolink de tudo dentro de .agents/skills

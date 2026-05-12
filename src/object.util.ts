@@ -50,4 +50,24 @@ export class ObjectUtil {
 	static isObject(obj: unknown): obj is Record<string, unknown> {
 		return !!obj && typeof obj === 'object' && !Array.isArray(obj);
 	}
+
+	static nullToUndefined<T>(obj: Partial<T>): Partial<T> {
+		if (obj === null) {
+			return undefined as T;
+		}
+		if (ArrayUtil.isArray(obj)) {
+			return obj.map((item: any) => this.nullToUndefined(item)) as unknown as T;
+		}
+		if (this.isObject(obj)) {
+			return Object.entries(obj).reduce((newObj: Record<string, unknown>, [key, value]) => {
+				newObj[key] = this.nullToUndefined(value as Partial<T>);
+				return newObj;
+			}, {}) as T;
+		}
+		return obj as T;
+	}
+	static partial<T>(obj: any, className: new () => object): Partial<T> {
+		const objInitial = this.nullToUndefined(obj);
+		return Object.assign(new className(), objInitial) as T;
+	}
 }

@@ -1,6 +1,6 @@
 {
   "name": "typescript-utils",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "",
   "scripts": {
     "test": "jest --no-cache --coverage",
@@ -21,7 +21,6 @@
   "homepage": "https://github.com/gilvam/typescript-utils#readme",
   "devDependencies": {
     "@types/jest": "^30.0.0",
-    "angular-eslint": "^19.5.0",
     "eslint": "^9.27.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-prettier": "^5.4.0",
