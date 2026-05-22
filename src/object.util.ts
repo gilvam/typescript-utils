@@ -66,6 +66,7 @@ export class ObjectUtil {
 		}
 		return obj as T;
 	}
+
 	static partial<T>(obj: any, className: new () => object): Partial<T> {
 		const objInitial = this.nullToUndefined(obj);
 		return Object.assign(new className(), objInitial) as T;
