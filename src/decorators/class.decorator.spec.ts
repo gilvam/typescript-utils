@@ -54,14 +54,14 @@ describe('NoNull', () => {
 		});
 	});
 
-	describe('métodos estáticos execute / executeArray', () => {
+	describe('métodos estáticos create / createArray', () => {
 		@NoNull()
 		class Service {
-			static execute(...args: unknown[]): unknown[] {
+			static create(...args: unknown[]): unknown[] {
 				return args;
 			}
 
-			static executeArray(...args: unknown[]): unknown[] {
+			static createArray(...args: unknown[]): unknown[] {
 				return args;
 			}
 
@@ -70,23 +70,23 @@ describe('NoNull', () => {
 			}
 		}
 
-		it('deve converter null em undefined nos argumentos de execute', () => {
-			expect(Service.execute(null, 'a', null)).toEqual([undefined, 'a', undefined]);
+		it('deve converter null em undefined nos argumentos de create', () => {
+			expect(Service.create(null, 'a', null)).toEqual([undefined, 'a', undefined]);
 		});
 
-		it('deve converter null em undefined nos argumentos de executeArray', () => {
-			expect(Service.executeArray(null, [1], null)).toEqual([undefined, [1], undefined]);
+		it('deve converter null em undefined nos argumentos de createArray', () => {
+			expect(Service.createArray(null, [1], null)).toEqual([undefined, [1], undefined]);
 		});
 
-		it('deve preservar valores falsy que não são null em execute', () => {
-			expect(Service.execute(0, '', false)).toEqual([0, '', false]);
+		it('deve preservar valores falsy que não são null em create', () => {
+			expect(Service.create(0, '', false)).toEqual([0, '', false]);
 		});
 
-		it('deve retornar o valor original de execute quando não há null', () => {
-			expect(Service.execute('a', 1, true)).toEqual(['a', 1, true]);
+		it('deve retornar o valor original de create quando não há null', () => {
+			expect(Service.create('a', 1, true)).toEqual(['a', 1, true]);
 		});
 
-		it('não deve normalizar argumentos de métodos estáticos diferentes de execute/executeArray', () => {
+		it('não deve normalizar argumentos de métodos estáticos diferentes de create/createArray', () => {
 			expect(Service.other(null, 'a')).toEqual([null, 'a']);
 		});
 	});
@@ -96,7 +96,7 @@ describe('NoNull', () => {
 		class Calculator {
 			static base = 100;
 
-			static execute(value: unknown): { base: number; value: unknown } {
+			static create(value: unknown): { base: number; value: unknown } {
 				return { base: this.base, value };
 			}
 		}
@@ -105,8 +105,8 @@ describe('NoNull', () => {
 			expect(Calculator.base).toBe(100);
 		});
 
-		it('deve manter o binding de this dentro de execute', () => {
-			expect(Calculator.execute(null)).toEqual({ base: 100, value: undefined });
+		it('deve manter o binding de this dentro de create', () => {
+			expect(Calculator.create(null)).toEqual({ base: 100, value: undefined });
 		});
 	});
 
@@ -118,13 +118,13 @@ describe('NoNull', () => {
 				public name?: unknown
 			) {}
 
-			static execute(id: unknown, name: unknown): User {
+			static create(id: unknown, name: unknown): User {
 				return new User(id, name);
 			}
 		}
 
-		it('deve normalizar null tanto no execute quanto no constructor encadeado', () => {
-			const user = User.execute(null, 'João');
+		it('deve normalizar null tanto no create quanto no constructor encadeado', () => {
+			const user = User.create(null, 'João');
 			expect(user).toBeInstanceOf(User);
 			expect(user.id).toBeUndefined();
 			expect(user.name).toBe('João');

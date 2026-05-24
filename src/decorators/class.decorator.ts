@@ -3,11 +3,11 @@ type Constructor<T = any> = new (...args: any[]) => T;
 /**
  * Decorador que converte null em undefined para:
  * - Argumentos do constructor
- * - Argumentos do método estático execute() e executeArray()
+ * - Argumentos do método estático create() e createArray()
  */
 export function NoNull() {
 	return function <T extends Constructor>(Ctor: T): T {
-		const functionsInClass = ['_execute', '_executeArray'].map((str) => str.substring(1));
+		const functionsInClass = ['_create', '_createArray'].map((str) => str.substring(1));
 
 		const normalizeNullArgs = (args: any[]): any[] => args.map((i) => (null === i ? undefined : i));
 
