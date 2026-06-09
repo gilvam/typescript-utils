@@ -4,15 +4,15 @@ import { Options } from './_models/options.model';
 class ClassDecorator {
 	private static readonly functionsInClass = ['_create', '_createArray'].map((str) => str.substring(1));
 
-	private static executeNoNull(args: any[]): any[] {
+	private static executeNoNull(args: unknown[]): unknown[] {
 		return args.map((i) => (null === i ? undefined : i));
 	}
 
-	private static executeCamelCase(args: any[]): any[] {
+	private static executeCamelCase(args: unknown[]): unknown[] {
 		return args.map((i) => ObjectUtil.toCamelCase(i));
 	}
 
-	private static applyTransforms(args: any[], options: Options): any[] {
+	private static execute(args: unknown[], options: Options): unknown[] {
 		let result = args;
 		if (options.camelCase) {
 			result = ClassDecorator.executeCamelCase(result);
@@ -30,32 +30,30 @@ class ClassDecorator {
 	 * - camelCase: converte as keys dos objetos recebidos para camelCase (profundo)
 	 */
 	static dto(options: Options) {
-		return function <T extends new (...args: any[]) => any>(ctor: T): T {
-			const wrapped: any = function (...args: any[]) {
-				return Reflect.construct(ctor, ClassDecorator.applyTransforms(args, options), new.target);
-			};
-
-			wrapped.prototype = ctor.prototype;
-
-			Object.getOwnPropertyNames(ctor).forEach((name) => {
-				if (name !== 'prototype') {
-					const descriptor = Object.getOwnPropertyDescriptor(ctor, name)!;
-					if (ClassDecorator.functionsInClass.includes(name) && typeof descriptor.value === 'function') {
-						const originalExecute = descriptor.value;
-						descriptor.value = function (...args: any[]) {
-							return originalExecute.apply(this, ClassDecorator.applyTransforms(args, options));
+		return function <T extends new (...args: never[]) => object>(ctor: T): T {
+			return new Proxy(ctor, {
+				construct(target, args: unknown[], newTarget): object {
+					return Reflect.construct(target, ClassDecorator.execute(args, options), newTarget) as object;
+				},
+				get(target, prop, receiver): unknown {
+					const value: unknown = Reflect.get(target, prop, receiver);
+					if (
+						typeof prop === 'string' &&
+						typeof value === 'function' &&
+						ClassDecorator.functionsInClass.includes(prop)
+					) {
+						const original = value as (...args: unknown[]) => unknown;
+						return function (this: unknown, ...args: unknown[]): unknown {
+							return original.apply(this, ClassDecorator.execute(args, options));
 						};
 					}
-
-					Object.defineProperty(wrapped, name, descriptor);
+					return value;
 				}
 			});
-
-			return wrapped as T;
 		};
 	}
 }
 
-export function dto(options = new Options()) {
-	return ClassDecorator.dto({ noNull: options.noNull, camelCase: options.camelCase });
+export function dto(options = new Options()): <T extends new (...args: never[]) => object>(ctor: T) => T {
+	return ClassDecorator.dto(options);
 }

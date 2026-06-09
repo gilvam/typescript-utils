@@ -52,23 +52,23 @@ export class ObjectUtil {
 	}
 
 	static nullToUndefined<T>(obj: Partial<T>): Partial<T> {
-		if (obj === null) {
-			return undefined as T;
-		}
-		if (ArrayUtil.isArray(obj)) {
-			return obj.map((item: any) => this.nullToUndefined(item)) as unknown as T;
-		}
-		if (this.isObject(obj)) {
-			return Object.entries(obj).reduce((newObj: Record<string, unknown>, [key, value]) => {
-				newObj[key] = this.nullToUndefined(value as Partial<T>);
-				return newObj;
-			}, {}) as T;
-		}
-		return obj as T;
+		const convert = (value: unknown): unknown => {
+			if (value === null) {
+				return undefined;
+			}
+			if (ArrayUtil.isArray(value)) {
+				return value.map((item) => convert(item));
+			}
+			if (this.isObject(value)) {
+				return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, convert(item)]));
+			}
+			return value;
+		};
+		return convert(obj) as Partial<T>;
 	}
 
-	static partial<T>(obj: any, className: new () => object): Partial<T> {
-		const objInitial = this.nullToUndefined(obj);
-		return Object.assign(new className(), objInitial) as T;
+	static partial<T>(obj: unknown, className: new () => object): Partial<T> {
+		const objInitial = this.nullToUndefined(obj as Partial<T>);
+		return Object.assign(new className(), objInitial);
 	}
 }

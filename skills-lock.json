@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "skills": {
+    "angular-developer": {
+      "source": "gilvam/skills",
+      "sourceType": "github",
+      "skillPath": "skills/angular-developer/SKILL.md",
+      "computedHash": "a0641ca7d9a42d1c98c884a58805129f8d8acb7e103459d1673c96fc8a3fac89"
+    },
+    "angular-folder-structure": {
+      "source": "gilvam/skills",
+      "sourceType": "github",
+      "skillPath": "skills/angular-folder-structure/SKILL.md",
+      "computedHash": "14886a668e8f64f50960fe2d7f9b89c635749b06b8ca796d49721ccfe29cc975"
+    },
+    "angular-http": {
+      "source": "gilvam/skills",
+      "sourceType": "github",
+      "skillPath": "skills/angular-http/SKILL.md",
+      "computedHash": "81d825181e4f2c57d6be1cf3c945b9285f8026987e8c4b04fbdac345caedb870"
+    },
+    "angular-patterns": {
+      "source": "gilvam/skills",
+      "sourceType": "github",
+      "skillPath": "skills/angular-patterns/SKILL.md",
+      "computedHash": "0b4c99e09d63a11bd5924c8f9a6bb0dbf8b933a105eb39998b33717b10da0f69"
+    },
+    "code-smell": {
+      "source": "gilvam/skills",
+      "sourceType": "github",
+      "skillPath": "skills/code-smell/SKILL.md",
+      "computedHash": "754e6de46941906cc4ecc6f08f8e2fe0e4ccec96d29e65d6ef831a5f492f1e1c"
+    },
+    "code-standards-en": {
+      "source": "gilvam/skills",
+      "sourceType": "github",
+      "skillPath": "skills/code-standards-en/SKILL.md",
+      "computedHash": "d7e42020934d577df75492c549b446c4a8d40dd2b66c78d3e5935bf2e877c2cd"
+    },
+    "context7": {
+      "source": "gilvam/skills",
+      "sourceType": "github",
+      "skillPath": "skills/context7/SKILL.md",
+      "computedHash": "d0733efd75cc60b7d6f173064ecf106c03e9df9f615952395561f1a58f11dfb8"
+    },
+    "typescript-patterns": {
+      "source": "gilvam/skills",
+      "sourceType": "github",
+      "skillPath": "skills/typescript-patterns/SKILL.md",
+      "computedHash": "78d9fc77d7a82fc38685eb95b7b4f981645014ea43680100f2bd6e0a84c14161"
+    },
+    "vitest-testing": {
+      "source": "gilvam/skills",
+      "sourceType": "github",
+      "skillPath": "skills/vitest-testing/SKILL.md",
+      "computedHash": "579065f26e8dacee2e117c158680c5547422461d587a743ec61ada2419440c3a"
+    }
+  }
+}
