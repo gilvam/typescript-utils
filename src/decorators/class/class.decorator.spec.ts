@@ -1,8 +1,8 @@
-import { NoNull } from './class.decorator';
+import { dto } from './class.decorator';
 
-describe('NoNull', () => {
+describe('dto', () => {
 	describe('constructor', () => {
-		@NoNull()
+		@dto()
 		class Sample {
 			constructor(
 				public a?: unknown,
@@ -55,7 +55,7 @@ describe('NoNull', () => {
 	});
 
 	describe('métodos estáticos create / createArray', () => {
-		@NoNull()
+		@dto({ noNull: true, camelCase: false })
 		class Service {
 			static create(...args: unknown[]): unknown[] {
 				return args;
@@ -92,7 +92,7 @@ describe('NoNull', () => {
 	});
 
 	describe('contexto e membros estáticos', () => {
-		@NoNull()
+		@dto()
 		class Calculator {
 			static base = 100;
 
@@ -111,7 +111,7 @@ describe('NoNull', () => {
 	});
 
 	describe('combinando constructor e estáticos', () => {
-		@NoNull()
+		@dto()
 		class User {
 			constructor(
 				public id?: unknown,
@@ -128,6 +128,100 @@ describe('NoNull', () => {
 			expect(user).toBeInstanceOf(User);
 			expect(user.id).toBeUndefined();
 			expect(user.name).toBe('João');
+		});
+	});
+
+	describe('flag camelCase', () => {
+		describe('@dto() com ambas as flags default (true)', () => {
+			@dto()
+			class Sample {
+				constructor(
+					public payload?: any,
+					public extra?: unknown
+				) {}
+
+				static create(payload: any): any {
+					return payload;
+				}
+			}
+
+			it('deve converter as keys para camelCase no objeto e null (top-level) em undefined', () => {
+				const instance = new Sample({ first_name: 'Ana' }, null);
+				expect(instance.payload).toEqual({ firstName: 'Ana' });
+				expect(instance.extra).toBeUndefined();
+			});
+
+			it('deve manter null aninhado dentro do objeto (noNull é raso)', () => {
+				const instance = new Sample({ first_name: 'Ana', last_name: null });
+				expect(instance.payload).toEqual({ firstName: 'Ana', lastName: null });
+			});
+
+			it('deve converter as keys para camelCase no create', () => {
+				expect(Sample.create({ first_name: 'Ana' })).toEqual({ firstName: 'Ana' });
+			});
+
+			it('deve converter keys de objetos aninhados e arrays (profundo)', () => {
+				const instance = new Sample({
+					user_data: { home_address: 'rua' },
+					tag_list: [{ tag_name: 'a' }]
+				});
+				expect(instance.payload).toEqual({
+					userData: { homeAddress: 'rua' },
+					tagList: [{ tagName: 'a' }]
+				});
+			});
+		});
+
+		describe('@dto({ noNull: true, camelCase: false }) — apenas noNull', () => {
+			@dto({ noNull: true, camelCase: false })
+			class Sample {
+				constructor(public payload?: any) {}
+			}
+
+			it('deve manter as keys originais e o null aninhado (noNull é raso)', () => {
+				const instance = new Sample({ first_name: null });
+				expect(instance.payload).toEqual({ first_name: null });
+			});
+
+			it('deve converter argumento null de nível superior em undefined', () => {
+				const instance = new Sample(null);
+				expect(instance.payload).toBeUndefined();
+			});
+		});
+
+		describe('@dto({ noNull: false, camelCase: true }) — apenas camelCase', () => {
+			@dto({ noNull: false, camelCase: true })
+			class Sample {
+				constructor(public payload?: any) {}
+			}
+
+			it('deve converter as keys para camelCase mantendo null como null', () => {
+				const instance = new Sample({ first_name: null, last_name: 'Souza' });
+				expect(instance.payload).toEqual({ firstName: null, lastName: 'Souza' });
+			});
+
+			it('deve manter argumento null de nível superior como null', () => {
+				const instance = new Sample(null);
+				expect(instance.payload).toBeNull();
+			});
+		});
+
+		describe('@dto({ noNull: false, camelCase: false }) — nenhuma transformação', () => {
+			@dto({ noNull: false, camelCase: false })
+			class Sample {
+				constructor(public payload?: any) {}
+			}
+
+			it('deve manter os argumentos intactos', () => {
+				const original = { first_name: null, last_name: 'Souza' };
+				const instance = new Sample(original);
+				expect(instance.payload).toEqual({ first_name: null, last_name: 'Souza' });
+			});
+
+			it('deve manter argumento null de nível superior como null', () => {
+				const instance = new Sample(null);
+				expect(instance.payload).toBeNull();
+			});
 		});
 	});
 });
