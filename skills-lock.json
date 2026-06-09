@@ -49,6 +49,12 @@
       "skillPath": "skills/typescript-patterns/SKILL.md",
       "computedHash": "78d9fc77d7a82fc38685eb95b7b4f981645014ea43680100f2bd6e0a84c14161"
     },
+    "typescript-sonarqube": {
+      "source": "gilvam/skills",
+      "sourceType": "github",
+      "skillPath": "skills/typescript-sonarqube/SKILL.md",
+      "computedHash": "8b85fc4e29906d9639225d28003580ddeabf0fe7fc203ce477be3d2eeaffa024"
+    },
     "vitest-testing": {
       "source": "gilvam/skills",
       "sourceType": "github",
