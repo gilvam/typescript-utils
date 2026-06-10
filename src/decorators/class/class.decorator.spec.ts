@@ -174,9 +174,9 @@ describe('dto', () => {
 				}
 			}
 
-			it('deve converter as keys para camelCase no objeto e null (top-level) em undefined', () => {
+			it('deve manter as keys originais no constructor e converter null (top-level) em undefined', () => {
 				const instance = new Sample({ first_name: 'Ana' }, null);
-				expect(instance.payload).toEqual({ firstName: 'Ana' });
+				expect(instance.payload).toEqual({ first_name: 'Ana' });
 				expect(instance.extra).toBeUndefined();
 			});
 
@@ -184,12 +184,12 @@ describe('dto', () => {
 				expect(Sample.create({ first_name: 'Ana' })).toEqual({ firstName: 'Ana' });
 			});
 
-			it('deve converter keys de objetos aninhados e arrays (profundo)', () => {
-				const instance = new Sample({
+			it('deve converter keys de objetos aninhados e arrays (profundo) no create', () => {
+				const result = Sample.create({
 					user_data: { home_address: 'rua' },
 					tag_list: [{ tag_name: 'a' }]
 				});
-				expect(instance.payload).toEqual({
+				expect(result).toEqual({
 					userData: { homeAddress: 'rua' },
 					tagList: [{ tagName: 'a' }]
 				});
@@ -200,11 +200,22 @@ describe('dto', () => {
 			@Dto({ noNullValue: false, keyCamelCase: true })
 			class Sample {
 				constructor(public payload?: any) {}
+
+				static create(payload: any): any {
+					return payload;
+				}
 			}
 
-			it('deve converter as keys para camelCase mantendo null como null', () => {
+			it('deve manter as keys originais no constructor mesmo com keyCamelCase ativo', () => {
 				const instance = new Sample({ first_name: null, last_name: 'Souza' });
-				expect(instance.payload).toEqual({ firstName: null, lastName: 'Souza' });
+				expect(instance.payload).toEqual({ first_name: null, last_name: 'Souza' });
+			});
+
+			it('deve converter as keys para camelCase no create mantendo null como null', () => {
+				expect(Sample.create({ first_name: null, last_name: 'Souza' })).toEqual({
+					firstName: null,
+					lastName: 'Souza'
+				});
 			});
 
 			it('deve manter argumento null de nível superior como null', () => {

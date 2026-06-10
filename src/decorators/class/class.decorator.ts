@@ -12,9 +12,9 @@ class ClassDecorator {
 		return args.map((i) => ObjectUtil.toCamelCase(i));
 	}
 
-	private static execute(args: unknown[], options: Options): unknown[] {
+	private static execute(args: unknown[], options: Options, applyKeyCamelCase: boolean): unknown[] {
 		let result = args;
-		if (options.keyCamelCase) {
+		if (options.keyCamelCase && applyKeyCamelCase) {
 			result = ClassDecorator.executeCamelCase(result);
 		}
 		if (options.noNullValue) {
@@ -27,13 +27,14 @@ class ClassDecorator {
 	 * Decorator that normalizes the arguments of the constructor and of the static
 	 * create() / createArray() methods according to the given flags:
 	 * - noNullValue: converts null to undefined (shallow, at argument level) — default true
-	 * - keyCamelCase: converts the keys of received objects to camelCase (deep) — default false
+	 * - keyCamelCase: converts the keys of received objects to camelCase (deep),
+	 *   applied only to the static create() / createArray() methods — default false
 	 */
 	static dto(options: Options) {
 		return function <T extends new (...args: never[]) => object>(ctor: T): T {
 			return new Proxy(ctor, {
 				construct(target, args: unknown[], newTarget): object {
-					return Reflect.construct(target, ClassDecorator.execute(args, options), newTarget) as object;
+					return Reflect.construct(target, ClassDecorator.execute(args, options, false), newTarget) as object;
 				},
 				get(target, prop, receiver): unknown {
 					const value: unknown = Reflect.get(target, prop, receiver);
@@ -44,7 +45,7 @@ class ClassDecorator {
 					) {
 						const original = value as (...args: unknown[]) => unknown;
 						return function (this: unknown, ...args: unknown[]): unknown {
-							return original.apply(this, ClassDecorator.execute(args, options));
+							return original.apply(this, ClassDecorator.execute(args, options, true));
 						};
 					}
 					return value;
