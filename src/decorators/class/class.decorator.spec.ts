@@ -1,8 +1,8 @@
-import { dto } from './class.decorator';
+import { Dto } from './class.decorator';
 
 describe('dto', () => {
 	describe('constructor', () => {
-		@dto()
+		@Dto()
 		class Sample {
 			constructor(
 				public a?: unknown,
@@ -55,7 +55,7 @@ describe('dto', () => {
 	});
 
 	describe('métodos estáticos create / createArray', () => {
-		@dto({ noNullValue: true, keyCamelCase: false })
+		@Dto({ noNullValue: true, keyCamelCase: false })
 		class Service {
 			static create(...args: unknown[]): unknown[] {
 				return args;
@@ -92,7 +92,7 @@ describe('dto', () => {
 	});
 
 	describe('contexto e membros estáticos', () => {
-		@dto()
+		@Dto()
 		class Calculator {
 			static base = 100;
 
@@ -111,7 +111,7 @@ describe('dto', () => {
 	});
 
 	describe('combinando constructor e estáticos', () => {
-		@dto()
+		@Dto()
 		class User {
 			constructor(
 				public id?: unknown,
@@ -133,7 +133,7 @@ describe('dto', () => {
 
 	describe('flag keyCamelCase', () => {
 		describe('@dto() com as flags default (noNullValue: true, keyCamelCase: false)', () => {
-			@dto()
+			@Dto()
 			class Sample {
 				constructor(
 					public payload?: any,
@@ -162,7 +162,7 @@ describe('dto', () => {
 		});
 
 		describe('@dto({ noNullValue: true, keyCamelCase: true }) — ambas as flags ativas', () => {
-			@dto({ noNullValue: true, keyCamelCase: true })
+			@Dto({ noNullValue: true, keyCamelCase: true })
 			class Sample {
 				constructor(
 					public payload?: any,
@@ -197,7 +197,7 @@ describe('dto', () => {
 		});
 
 		describe('@dto({ noNullValue: false, keyCamelCase: true }) — apenas keyCamelCase', () => {
-			@dto({ noNullValue: false, keyCamelCase: true })
+			@Dto({ noNullValue: false, keyCamelCase: true })
 			class Sample {
 				constructor(public payload?: any) {}
 			}
@@ -214,7 +214,7 @@ describe('dto', () => {
 		});
 
 		describe('@dto({ noNullValue: false, keyCamelCase: false }) — nenhuma transformação', () => {
-			@dto({ noNullValue: false, keyCamelCase: false })
+			@Dto({ noNullValue: false, keyCamelCase: false })
 			class Sample {
 				constructor(public payload?: any) {}
 			}

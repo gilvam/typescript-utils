@@ -54,6 +54,6 @@ class ClassDecorator {
 	}
 }
 
-export function dto(options = new Options()): <T extends new (...args: never[]) => object>(ctor: T) => T {
+export function Dto(options = new Options()): <T extends new (...args: never[]) => object>(ctor: T) => T {
 	return ClassDecorator.dto(options);
 }
