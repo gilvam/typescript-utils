@@ -5,7 +5,7 @@ class ClassDecorator {
 	private static readonly functionsInClass = ['_create', '_createArray'].map((str) => str.substring(1));
 
 	private static executeNoNull(args: unknown[]): unknown[] {
-		return args.map((i) => (null === i ? undefined : i));
+		return args.map((arg) => (arg === null ? undefined : arg));
 	}
 
 	private static executeCamelCase(args: unknown[]): unknown[] {
@@ -24,10 +24,10 @@ class ClassDecorator {
 	}
 
 	/**
-	 * Decorador que normaliza os argumentos do constructor e dos métodos estáticos
-	 * create() / createArray() de acordo com as flags informadas:
-	 * - noNull: converte null em undefined (comportamento raso, no nível dos argumentos)
-	 * - camelCase: converte as keys dos objetos recebidos para camelCase (profundo)
+	 * Decorator that normalizes the arguments of the constructor and of the static
+	 * create() / createArray() methods according to the given flags:
+	 * - noNull: converts null to undefined (shallow, at argument level)
+	 * - camelCase: converts the keys of received objects to camelCase (deep)
 	 */
 	static dto(options: Options) {
 		return function <T extends new (...args: never[]) => object>(ctor: T): T {

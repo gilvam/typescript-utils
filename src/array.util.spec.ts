@@ -1,6 +1,6 @@
 import { ArrayUtil } from './array.util';
 
-describe('ObjectUtil', () => {
+describe('ArrayUtil', () => {
 	describe('toCamelCase', () => {
 		it('should convert array of primitive', () => {
 			const obj = [1, -10, '', '50', true, 'x_y', NaN, undefined, false, null, Symbol('symbol'), BigInt(123)];

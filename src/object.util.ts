@@ -1,5 +1,3 @@
-import { ArrayUtil } from './array.util';
-
 export class ObjectUtil {
 	private static normalizeSpecialLetters(key: string): string {
 		return key.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -12,43 +10,48 @@ export class ObjectUtil {
 	private static keyToCamelCase(keyDefault: string, delimiters: string[] = ['_', '-']): string {
 		const key = this.normalizeSpecialLetters(keyDefault);
 		const regexLetterAfterDelimiter = this.regexLetterAfterDelimiter(delimiters);
-		const startsWithDelimiter = delimiters.some((d) => key.startsWith(d));
-		const base = startsWithDelimiter ? key.slice(1) : key;
+		const firstDelimiter = delimiters.find((delimiter) => key.startsWith(delimiter)) ?? '';
+		const base = firstDelimiter ? key.slice(1) : key;
 		const camel = base.replace(regexLetterAfterDelimiter, (_, letter: string) => letter.toUpperCase());
-		return startsWithDelimiter ? `${delimiters[0]}${camel}` : camel;
+		return `${firstDelimiter}${camel}`;
+	}
+
+	private static valueToCamelCase(value: unknown): unknown {
+		if (this.isObject(value)) {
+			return this.toCamelCase(value);
+		}
+
+		if (this.isArray(value)) {
+			return this.arrayToCamelCase(value);
+		}
+		return value;
+	}
+
+	static arrayToCamelCase<T>(arr: T[]): T[] {
+		return arr.map((item) => this.valueToCamelCase(item) as T);
 	}
 
 	static toCamelCase<T>(obj: T): T {
-		if (ArrayUtil.isArray(obj)) {
-			return { ...ArrayUtil.toCamelCase(obj) } as T;
+		if (this.isArray(obj)) {
+			return { ...this.arrayToCamelCase(obj) } as T;
 		}
 
 		if (!this.isObject(obj)) {
 			return obj;
 		}
 
-		const newObj: Record<string, unknown> = {};
-		for (const key in obj) {
-			const value = obj[key];
-			const camelKey = this.keyToCamelCase(key);
-
-			if (ObjectUtil.isObject(value)) {
-				newObj[camelKey] = ObjectUtil.toCamelCase(value);
-				continue;
-			}
-
-			if (ArrayUtil.isArray(value)) {
-				newObj[camelKey] = ArrayUtil.toCamelCase(value);
-				continue;
-			}
-
-			newObj[camelKey] = value;
-		}
-		return newObj as T;
+		const entries = Object.entries(obj).map(([key, value]) => {
+			return [this.keyToCamelCase(key), this.valueToCamelCase(value)];
+		});
+		return Object.fromEntries(entries) as T;
 	}
 
 	static isObject(obj: unknown): obj is Record<string, unknown> {
 		return !!obj && typeof obj === 'object' && !Array.isArray(obj);
+	}
+
+	static isArray<T>(obj: unknown): obj is T[] {
+		return Array.isArray(obj);
 	}
 
 	static nullToUndefined<T>(obj: Partial<T>): Partial<T> {
@@ -56,7 +59,7 @@ export class ObjectUtil {
 			if (value === null) {
 				return undefined;
 			}
-			if (ArrayUtil.isArray(value)) {
+			if (this.isArray(value)) {
 				return value.map((item) => convert(item));
 			}
 			if (this.isObject(value)) {

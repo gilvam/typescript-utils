@@ -46,6 +46,38 @@ describe('ObjectUtil', () => {
 			const result = ObjectUtil.toCamelCase(input);
 			expect(result).toEqual({ a: 1, b: 'x', c: true });
 		});
+
+		describe('toCamelCase vs toCamelCaseOld — propriedades enumeráveis herdadas do prototype', () => {
+			const createInputWithInheritedKey = (): Record<string, unknown> => {
+				const proto = { inherited_key: 'parent' };
+				const input = Object.create(proto) as Record<string, unknown>;
+				input['own_key'] = 'child';
+				return input;
+			};
+
+			it('toCamelCase deve ignorar propriedades herdadas (Object.entries só lê propriedades próprias)', () => {
+				const result = ObjectUtil.toCamelCase(createInputWithInheritedKey());
+				expect(result).toEqual({ ownKey: 'child' });
+				expect(result).not.toHaveProperty('inheritedKey');
+			});
+		});
+
+		describe('estruturas profundamente aninhadas — 12 camadas de objetos e arrays', () => {
+			// prettier-ignore
+			// eslint-disable-next-line camelcase
+			const createDeepInput = (): Record<string, unknown> => ({ level_one: { level_two: { level_three: [{ level_four: { level_five: [{ level_six: { level_seven: { level_eight: [{ level_nine: { level_ten: { level_eleven: [{ level_twelve: 'deep_value' }] } } }] } } }] } }] } }, sibling_list: [1, 'two', null, { item_key: true }] });
+			// prettier-ignore
+			const createDeepExpected = (): Record<string, unknown> => ({ levelOne: { levelTwo: { levelThree: [{ levelFour: { levelFive: [{ levelSix: { levelSeven: { levelEight: [{ levelNine: { levelTen: { levelEleven: [{ levelTwelve: 'deep_value' }] } } }] } } }] } }] } }, siblingList: [1, 'two', null, { itemKey: true }] });
+
+			it('toCamelCase deve converter todas as keys nas 12 camadas de objetos e arrays', () => {
+				const result = ObjectUtil.toCamelCase(createDeepInput());
+				expect(result).toEqual(createDeepExpected());
+				expect(result).toHaveProperty(
+					'levelOne.levelTwo.levelThree.0.levelFour.levelFive.0.levelSix.levelSeven.levelEight.0.levelNine.levelTen.levelEleven.0',
+					{ levelTwelve: 'deep_value' }
+				);
+			});
+		});
 	});
 
 	describe('nullToUndefined', () => {
