@@ -26,7 +26,8 @@ class ClassDecorator {
 	/**
 	 * Decorator that normalizes the arguments of the constructor and of the static
 	 * create() / createArray() methods according to the given flags:
-	 * - noNullValue: converts null to undefined (shallow, at argument level) — default true
+	 * - noNullValue: converts null to undefined (shallow, at argument level),
+	 *   applied to the constructor and to the static create() / createArray() methods — default true
 	 * - keyCamelCase: converts the keys of received objects to camelCase (deep),
 	 *   applied only to the static create() / createArray() methods — default false
 	 */
