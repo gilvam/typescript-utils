@@ -14,10 +14,10 @@ class ClassDecorator {
 
 	private static execute(args: unknown[], options: Options): unknown[] {
 		let result = args;
-		if (options.camelCase) {
+		if (options.keyCamelCase) {
 			result = ClassDecorator.executeCamelCase(result);
 		}
-		if (options.noNull) {
+		if (options.noNullValue) {
 			result = ClassDecorator.executeNoNull(result);
 		}
 		return result;
@@ -26,8 +26,8 @@ class ClassDecorator {
 	/**
 	 * Decorator that normalizes the arguments of the constructor and of the static
 	 * create() / createArray() methods according to the given flags:
-	 * - noNull: converts null to undefined (shallow, at argument level)
-	 * - camelCase: converts the keys of received objects to camelCase (deep)
+	 * - noNullValue: converts null to undefined (shallow, at argument level) — default true
+	 * - keyCamelCase: converts the keys of received objects to camelCase (deep) — default false
 	 */
 	static dto(options: Options) {
 		return function <T extends new (...args: never[]) => object>(ctor: T): T {

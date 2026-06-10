@@ -1,6 +1,6 @@
 export class Options {
 	constructor(
-		public noNull = true,
-		public camelCase = true
+		public noNullValue = true,
+		public keyCamelCase = false
 	) {}
 }

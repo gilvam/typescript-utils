@@ -55,7 +55,7 @@ describe('dto', () => {
 	});
 
 	describe('métodos estáticos create / createArray', () => {
-		@dto({ noNull: true, camelCase: false })
+		@dto({ noNullValue: true, keyCamelCase: false })
 		class Service {
 			static create(...args: unknown[]): unknown[] {
 				return args;
@@ -131,9 +131,38 @@ describe('dto', () => {
 		});
 	});
 
-	describe('flag camelCase', () => {
-		describe('@dto() com ambas as flags default (true)', () => {
+	describe('flag keyCamelCase', () => {
+		describe('@dto() com as flags default (noNullValue: true, keyCamelCase: false)', () => {
 			@dto()
+			class Sample {
+				constructor(
+					public payload?: any,
+					public extra?: unknown
+				) {}
+
+				static create(payload: any): any {
+					return payload;
+				}
+			}
+
+			it('deve manter as keys originais e converter null (top-level) em undefined', () => {
+				const instance = new Sample({ first_name: 'Ana' }, null);
+				expect(instance.payload).toEqual({ first_name: 'Ana' });
+				expect(instance.extra).toBeUndefined();
+			});
+
+			it('deve manter null aninhado dentro do objeto (noNullValue é raso)', () => {
+				const instance = new Sample({ first_name: 'Ana', last_name: null });
+				expect(instance.payload).toEqual({ first_name: 'Ana', last_name: null });
+			});
+
+			it('deve manter as keys originais no create', () => {
+				expect(Sample.create({ first_name: 'Ana' })).toEqual({ first_name: 'Ana' });
+			});
+		});
+
+		describe('@dto({ noNullValue: true, keyCamelCase: true }) — ambas as flags ativas', () => {
+			@dto({ noNullValue: true, keyCamelCase: true })
 			class Sample {
 				constructor(
 					public payload?: any,
@@ -149,11 +178,6 @@ describe('dto', () => {
 				const instance = new Sample({ first_name: 'Ana' }, null);
 				expect(instance.payload).toEqual({ firstName: 'Ana' });
 				expect(instance.extra).toBeUndefined();
-			});
-
-			it('deve manter null aninhado dentro do objeto (noNull é raso)', () => {
-				const instance = new Sample({ first_name: 'Ana', last_name: null });
-				expect(instance.payload).toEqual({ firstName: 'Ana', lastName: null });
 			});
 
 			it('deve converter as keys para camelCase no create', () => {
@@ -172,25 +196,8 @@ describe('dto', () => {
 			});
 		});
 
-		describe('@dto({ noNull: true, camelCase: false }) — apenas noNull', () => {
-			@dto({ noNull: true, camelCase: false })
-			class Sample {
-				constructor(public payload?: any) {}
-			}
-
-			it('deve manter as keys originais e o null aninhado (noNull é raso)', () => {
-				const instance = new Sample({ first_name: null });
-				expect(instance.payload).toEqual({ first_name: null });
-			});
-
-			it('deve converter argumento null de nível superior em undefined', () => {
-				const instance = new Sample(null);
-				expect(instance.payload).toBeUndefined();
-			});
-		});
-
-		describe('@dto({ noNull: false, camelCase: true }) — apenas camelCase', () => {
-			@dto({ noNull: false, camelCase: true })
+		describe('@dto({ noNullValue: false, keyCamelCase: true }) — apenas keyCamelCase', () => {
+			@dto({ noNullValue: false, keyCamelCase: true })
 			class Sample {
 				constructor(public payload?: any) {}
 			}
@@ -206,8 +213,8 @@ describe('dto', () => {
 			});
 		});
 
-		describe('@dto({ noNull: false, camelCase: false }) — nenhuma transformação', () => {
-			@dto({ noNull: false, camelCase: false })
+		describe('@dto({ noNullValue: false, keyCamelCase: false }) — nenhuma transformação', () => {
+			@dto({ noNullValue: false, keyCamelCase: false })
 			class Sample {
 				constructor(public payload?: any) {}
 			}
