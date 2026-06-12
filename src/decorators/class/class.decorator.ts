@@ -31,11 +31,12 @@ class ClassDecorator {
 	 * - keyCamelCase: converts the keys of received objects to camelCase (deep),
 	 *   applied only to the static create() / createArray() methods — default false
 	 */
-	static dto(options: Options) {
+	static dto(options: Partial<Options>) {
+		const opts = Object.assign(new Options(), options);
 		return function <T extends new (...args: never[]) => object>(ctor: T): T {
 			return new Proxy(ctor, {
 				construct(target, args: unknown[], newTarget): object {
-					return Reflect.construct(target, ClassDecorator.execute(args, options, false), newTarget) as object;
+					return Reflect.construct(target, ClassDecorator.execute(args, opts, false), newTarget) as object;
 				},
 				get(target, prop, receiver): unknown {
 					const value: unknown = Reflect.get(target, prop, receiver);
@@ -46,7 +47,7 @@ class ClassDecorator {
 					) {
 						const original = value as (...args: unknown[]) => unknown;
 						return function (this: unknown, ...args: unknown[]): unknown {
-							return original.apply(this, ClassDecorator.execute(args, options, true));
+							return original.apply(this, ClassDecorator.execute(args, opts, true));
 						};
 					}
 					return value;
@@ -56,6 +57,8 @@ class ClassDecorator {
 	}
 }
 
-export function Dto(options = new Options()): <T extends new (...args: never[]) => object>(ctor: T) => T {
+export function Dto(
+	options: Partial<Options> = new Options()
+): <T extends new (...args: never[]) => object>(ctor: T) => T {
 	return ClassDecorator.dto(options);
 }

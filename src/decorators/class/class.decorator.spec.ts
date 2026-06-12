@@ -1,5 +1,7 @@
 import { Dto } from './class.decorator';
+import { Options } from './_models/options.model';
 
+/* eslint-disable camelcase, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment */
 describe('dto', () => {
 	describe('constructor', () => {
 		@Dto()
@@ -240,6 +242,85 @@ describe('dto', () => {
 				const instance = new Sample(null);
 				expect(instance.payload).toBeNull();
 			});
+		});
+	});
+
+	describe('variantes de parâmetros { } com keys', () => {
+		function buildSample(
+			options: Partial<Options>
+		): (new (payload?: unknown) => { payload?: unknown }) & { create(payload: unknown): unknown } {
+			@Dto(options)
+			class Sample {
+				constructor(public payload?: any) {}
+
+				static create(payload: any): any {
+					return payload;
+				}
+			}
+			return Sample;
+		}
+
+		it('@Dto({}) — converte null no constructor e mantém keys no create', () => {
+			const Sample = buildSample({});
+			expect(new Sample(null).payload).toBeUndefined();
+			expect(Sample.create({ first_name: 'Ana' })).toEqual({ first_name: 'Ana' });
+			expect(Sample.create(null)).toBeUndefined();
+		});
+
+		it('@Dto({ noNullValue: true }) — converte null no constructor e mantém keys no create', () => {
+			const Sample = buildSample({ noNullValue: true });
+			expect(new Sample(null).payload).toBeUndefined();
+			expect(Sample.create({ first_name: 'Ana' })).toEqual({ first_name: 'Ana' });
+			expect(Sample.create(null)).toBeUndefined();
+		});
+
+		it('@Dto({ noNullValue: false }) — mantém null no constructor e mantém keys no create', () => {
+			const Sample = buildSample({ noNullValue: false });
+			expect(new Sample(null).payload).toBeNull();
+			expect(Sample.create({ first_name: 'Ana' })).toEqual({ first_name: 'Ana' });
+			expect(Sample.create(null)).toBeNull();
+		});
+
+		it('@Dto({ keyCamelCase: true }) — converte null no constructor e converte keys no create', () => {
+			const Sample = buildSample({ keyCamelCase: true });
+			expect(new Sample(null).payload).toBeUndefined();
+			expect(Sample.create({ first_name: 'Ana' })).toEqual({ firstName: 'Ana' });
+			expect(Sample.create(null)).toBeUndefined();
+		});
+
+		it('@Dto({ keyCamelCase: false }) — converte null no constructor e mantém keys no create', () => {
+			const Sample = buildSample({ keyCamelCase: false });
+			expect(new Sample(null).payload).toBeUndefined();
+			expect(Sample.create({ first_name: 'Ana' })).toEqual({ first_name: 'Ana' });
+			expect(Sample.create(null)).toBeUndefined();
+		});
+
+		it('@Dto({ noNullValue: true, keyCamelCase: true }) — converte null no constructor e converte keys no create', () => {
+			const Sample = buildSample({ noNullValue: true, keyCamelCase: true });
+			expect(new Sample(null).payload).toBeUndefined();
+			expect(Sample.create({ first_name: 'Ana' })).toEqual({ firstName: 'Ana' });
+			expect(Sample.create(null)).toBeUndefined();
+		});
+
+		it('@Dto({ noNullValue: true, keyCamelCase: false }) — converte null no constructor e mantém keys no create', () => {
+			const Sample = buildSample({ noNullValue: true, keyCamelCase: false });
+			expect(new Sample(null).payload).toBeUndefined();
+			expect(Sample.create({ first_name: 'Ana' })).toEqual({ first_name: 'Ana' });
+			expect(Sample.create(null)).toBeUndefined();
+		});
+
+		it('@Dto({ noNullValue: false, keyCamelCase: true }) — mantém null no constructor e converte keys no create', () => {
+			const Sample = buildSample({ noNullValue: false, keyCamelCase: true });
+			expect(new Sample(null).payload).toBeNull();
+			expect(Sample.create({ first_name: 'Ana' })).toEqual({ firstName: 'Ana' });
+			expect(Sample.create(null)).toBeNull();
+		});
+
+		it('@Dto({ noNullValue: false, keyCamelCase: false }) — mantém null no constructor e mantém keys no create', () => {
+			const Sample = buildSample({ noNullValue: false, keyCamelCase: false });
+			expect(new Sample(null).payload).toBeNull();
+			expect(Sample.create({ first_name: 'Ana' })).toEqual({ first_name: 'Ana' });
+			expect(Sample.create(null)).toBeNull();
 		});
 	});
 });
