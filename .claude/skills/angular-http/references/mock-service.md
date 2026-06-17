@@ -9,7 +9,7 @@ import { Injectable } from '@angular/core';
 import { map, Observable, of } from 'rxjs';
 import { HttpUserService } from './http-user.service';
 import { UserResponseDto } from './models/user-response.dto';
-import searchMock from './mocks/search/200-ok.json';
+import searchMock from './jsons/search/200-ok.json';
 
 @Injectable({
 	providedIn: 'root',
@@ -28,9 +28,9 @@ export class HttpUserMockService extends HttpUserService {
 - Map the mock JSON through the same `Dto.create(...)` / `Dto.createArray(...)` factory the
   real service uses — never return raw JSON.
 - Prefix unused parameters with `_` (e.g. `_name`) to keep them documented but lint-clean.
-- Import mock JSON from the module's own `mocks/[method]/` folder.
+- Import mock JSON from the module's own `jsons/[method]/` folder.
 
 ## Local example to mirror
 
 `[app-root]/services/http/weather/http-weather.mock.service.ts` — extends the real service and
-returns DTO instances built from a `mocks/` fixture.
+returns DTO instances built from a `jsons/` fixture.

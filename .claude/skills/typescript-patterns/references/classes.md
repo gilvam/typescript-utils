@@ -79,7 +79,7 @@ export class UserDefault {
 
 **Only exception — values outside our control.** When a value genuinely originates outside our code (an
 external library type, or a raw API payload that may legitimately omit the field), `?` / `| undefined` is
-acceptable because the absence is real. For HTTP/DTO payloads, prefer the `@NoNull()` + safe-default
+acceptable because the absence is real. For HTTP/DTO payloads, prefer the `@Dto()` + safe-default
 approach in the **`angular-http`** skill over leaking `?` into the domain.
 
 ## Initialize every field with a safe default

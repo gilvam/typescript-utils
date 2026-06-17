@@ -21,6 +21,8 @@ description: >-
    Prefer this skill whenever documentation accuracy matters or when model
    knowledge may be outdated. Do not use for this repository's own internal
    code or for non-technical content.
+metadata:
+  inspired-by: https://github.com/pedronauck/skills
 ---
 
 # Documentation Lookup

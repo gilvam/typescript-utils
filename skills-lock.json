@@ -17,7 +17,7 @@
       "source": "gilvam/skills",
       "sourceType": "github",
       "skillPath": "skills/angular-http/SKILL.md",
-      "computedHash": "81d825181e4f2c57d6be1cf3c945b9285f8026987e8c4b04fbdac345caedb870"
+      "computedHash": "12bb2a718a3ab5891f10c0ff4399e0b54ebf708a508cb4d9c507a9085716a10f"
     },
     "angular-patterns": {
       "source": "gilvam/skills",
@@ -41,13 +41,13 @@
       "source": "gilvam/skills",
       "sourceType": "github",
       "skillPath": "skills/context7/SKILL.md",
-      "computedHash": "d0733efd75cc60b7d6f173064ecf106c03e9df9f615952395561f1a58f11dfb8"
+      "computedHash": "b6919c81b67199c271769146895503fcfe62efd289bf2bb16691e801c37bf8ff"
     },
     "typescript-patterns": {
       "source": "gilvam/skills",
       "sourceType": "github",
       "skillPath": "skills/typescript-patterns/SKILL.md",
-      "computedHash": "78d9fc77d7a82fc38685eb95b7b4f981645014ea43680100f2bd6e0a84c14161"
+      "computedHash": "370d928cb6d40452f7c80b58ce7ec6c2310fb97d74fbc59aaa75b63a15bf5dec"
     },
     "typescript-sonarqube": {
       "source": "gilvam/skills",

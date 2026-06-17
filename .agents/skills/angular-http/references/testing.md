@@ -11,6 +11,10 @@ Prove null-safety and explicit mapping. Cover:
 - partial JSON → provided values kept, the rest defaulted
 - root `null` nested objects/arrays → default nested DTO instances / `[]`
 - deeply nested `null` fields → nested DTO instances with their own defaults
+- root DTOs using `@Dto({ keyCamelCase: true })`: JSON with the API's **original** keys
+  (e.g. `first_name`, `user_data`) → camelCase properties mapped (`firstName`, `userData`),
+  including nested objects and arrays. Nested DTOs (plain `@Dto()`) are specced with
+  already-camelCased input — the root factory converts the tree before they are reached.
 
 ## Service specs (`http-[service-name].service.spec.ts`)
 
@@ -18,7 +22,9 @@ Use Angular's HTTP testing utilities:
 
 - Provide `provideHttpClient()` **before** `provideHttpClientTesting()`.
 - Inject `HttpTestingController`; assert method, URL, trimmed query params, and body.
-- Flush `mocks/[method]/200-ok.json` and assert the result is a DTO instance with mapped data.
+- Flush `jsons/[method]/200-ok.json` and assert the result is a DTO instance with mapped data.
+  The fixtures keep the API's **original** key casing (snake_case etc.) — flushing them proves
+  the `keyCamelCase` conversion end to end; never pre-camelCase a fixture.
 - Flush 4xx/5xx mocks (table-driven) and assert `HttpErrorResponse` propagates with the
   original `status` and `error` payload.
 - Call `httpMock.verify()` in `afterEach`.
