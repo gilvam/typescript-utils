@@ -245,6 +245,104 @@ describe('dto', () => {
 		});
 	});
 
+	describe('opção defaultValues', () => {
+		const pokemonDefault = {
+			id: 25,
+			name: 'pikachu',
+			experience: 112,
+			sprites: {
+				front: '25.png',
+				back: 'back/25.png',
+				other: { officialArtwork: { default: '25.png' } }
+			},
+			stats: [{ baseStat: 35, stat: { name: 'hp', url: 'https://pokeapi.co/api/v2/stat/1/' } }]
+		};
+
+		@Dto({ defaultValues: pokemonDefault })
+		class Pokemon {
+			static create(payload: any): any {
+				return payload;
+			}
+
+			static createArray(payload: any): any {
+				return payload;
+			}
+		}
+
+		it('deve completar os valores vazios do create com os defaultValues', () => {
+			const result = Pokemon.create({
+				id: null,
+				name: 'Raichu',
+				experience: 300,
+				sprites: { front: '30.png', back: '', other: undefined },
+				stats: [{ baseStat: 100, stat: { name: undefined, url: '' } }]
+			});
+			expect(result).toEqual({
+				id: 25,
+				name: 'Raichu',
+				experience: 300,
+				sprites: {
+					front: '30.png',
+					back: 'back/25.png',
+					other: { officialArtwork: { default: '25.png' } }
+				},
+				stats: [{ baseStat: 100, stat: { name: 'hp', url: 'https://pokeapi.co/api/v2/stat/1/' } }]
+			});
+		});
+
+		it('deve completar cada elemento do createArray com os defaultValues', () => {
+			const result = Pokemon.createArray([
+				{ id: null, name: 'Raichu', experience: 300 },
+				{ id: 26, name: '', experience: null }
+			]);
+			expect(result).toEqual([
+				{
+					id: 25,
+					name: 'Raichu',
+					experience: 300,
+					sprites: pokemonDefault.sprites,
+					stats: pokemonDefault.stats
+				},
+				{
+					id: 26,
+					name: 'pikachu',
+					experience: 112,
+					sprites: pokemonDefault.sprites,
+					stats: pokemonDefault.stats
+				}
+			]);
+		});
+
+		it('não deve aplicar defaultValues no constructor', () => {
+			@Dto({ defaultValues: { a: 'fallback', b: 'fallback' } })
+			class Sample {
+				constructor(
+					public a?: unknown,
+					public b?: unknown
+				) {}
+			}
+			const instance = new Sample('', 'x');
+			expect(instance.a).toBe('');
+			expect(instance.b).toBe('x');
+		});
+
+		it('não deve compartilhar a referência dos defaultValues entre elementos', () => {
+			const result = Pokemon.createArray([{ id: null }, { id: null }]) as any[];
+			expect(result[0].sprites).toEqual(pokemonDefault.sprites);
+			expect(result[0].sprites).not.toBe(result[1].sprites);
+		});
+
+		it('deve manter o comportamento original quando defaultValues não é informado (noNullValue raso)', () => {
+			@Dto()
+			class Sample {
+				static create(payload: any): any {
+					return payload;
+				}
+			}
+			expect(Sample.create({ id: null, name: '' })).toEqual({ id: null, name: '' });
+		});
+	});
+
 	describe('variantes de parâmetros { } com keys', () => {
 		function buildSample(
 			options: Partial<Options>

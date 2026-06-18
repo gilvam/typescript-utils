@@ -74,4 +74,44 @@ export class ObjectUtil {
 		const objInitial = this.nullToUndefined(obj as Partial<T>);
 		return Object.assign(new className(), objInitial);
 	}
+
+	private static isEmpty(value: unknown): boolean {
+		return value === null || value === undefined || value === '';
+	}
+
+	private static cloneDeep<T>(value: T): T {
+		if (this.isArray(value)) {
+			return value.map((item) => this.cloneDeep(item)) as T;
+		}
+		if (this.isObject(value)) {
+			const entries = Object.entries(value).map(([key, item]) => [key, this.cloneDeep(item)]);
+			return Object.fromEntries(entries) as T;
+		}
+		return value;
+	}
+
+	private static fillEmptyValue(value: unknown, fallback: unknown): unknown {
+		if (this.isEmpty(value)) {
+			return this.cloneDeep(fallback);
+		}
+		if (this.isArray(value)) {
+			if (this.isArray(fallback)) {
+				return value.map((item, index) => this.fillEmptyValue(item, fallback.at(index)));
+			}
+			if (this.isObject(fallback)) {
+				return value.map((item) => this.fillEmptyValue(item, fallback));
+			}
+			return value;
+		}
+		if (this.isObject(value) && this.isObject(fallback)) {
+			const keys = [...new Set([...Object.keys(value), ...Object.keys(fallback)])];
+			const entries = keys.map((key) => [key, this.fillEmptyValue(value[key], fallback[key])]);
+			return Object.fromEntries(entries);
+		}
+		return value;
+	}
+
+	static fillEmpty<T>(value: unknown, fallback: T): T {
+		return this.fillEmptyValue(value, fallback) as T;
+	}
 }

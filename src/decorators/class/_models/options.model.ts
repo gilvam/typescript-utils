@@ -1,6 +1,7 @@
-export class Options {
+export class Options<T = unknown> {
 	constructor(
 		public noNullValue = true,
-		public keyCamelCase = false
+		public keyCamelCase = false,
+		public defaultValues?: T | T[]
 	) {}
 }

@@ -12,13 +12,22 @@ class ClassDecorator {
 		return args.map((i) => ObjectUtil.toCamelCase(i));
 	}
 
-	private static execute(args: unknown[], options: Options, applyKeyCamelCase: boolean): unknown[] {
+	private static executeDefaultValues(args: unknown[], defaultValues: unknown): unknown[] {
+		return args.map((arg) => ObjectUtil.fillEmpty(arg, defaultValues));
+	}
+
+	private static doConstructorArgs(args: unknown[], options: Options): unknown[] {
+		return options.noNullValue ? ClassDecorator.executeNoNull(args) : args;
+	}
+
+	private static doMethodArgs(args: unknown[], options: Options): unknown[] {
 		let result = args;
-		if (options.keyCamelCase && applyKeyCamelCase) {
+		if (options.keyCamelCase) {
 			result = ClassDecorator.executeCamelCase(result);
 		}
-		if (options.noNullValue) {
-			result = ClassDecorator.executeNoNull(result);
+		result = ClassDecorator.doConstructorArgs(result, options);
+		if (options.defaultValues) {
+			result = ClassDecorator.executeDefaultValues(result, options.defaultValues);
 		}
 		return result;
 	}
@@ -30,13 +39,17 @@ class ClassDecorator {
 	 *   applied to the constructor and to the static create() / createArray() methods — default true
 	 * - keyCamelCase: converts the keys of received objects to camelCase (deep),
 	 *   applied only to the static create() / createArray() methods — default false
+	 * - defaultValues: a complete object (or array of objects) of the same type as the
+	 *   decorated class used to fill in empty values (null, undefined or '') of the
+	 *   received arguments (deep), applied only to the static create() / createArray()
+	 *   methods — default undefined (disabled)
 	 */
 	static dto(options: Partial<Options>) {
 		const opts = Object.assign(new Options(), options);
 		return function <T extends new (...args: never[]) => object>(ctor: T): T {
 			return new Proxy(ctor, {
 				construct(target, args: unknown[], newTarget): object {
-					return Reflect.construct(target, ClassDecorator.execute(args, opts, false), newTarget) as object;
+					return Reflect.construct(target, ClassDecorator.doConstructorArgs(args, opts), newTarget) as object;
 				},
 				get(target, prop, receiver): unknown {
 					const value: unknown = Reflect.get(target, prop, receiver);
@@ -47,7 +60,7 @@ class ClassDecorator {
 					) {
 						const original = value as (...args: unknown[]) => unknown;
 						return function (this: unknown, ...args: unknown[]): unknown {
-							return original.apply(this, ClassDecorator.execute(args, opts, true));
+							return original.apply(this, ClassDecorator.doMethodArgs(args, opts));
 						};
 					}
 					return value;
@@ -57,8 +70,8 @@ class ClassDecorator {
 	}
 }
 
-export function Dto(
-	options: Partial<Options> = new Options()
-): <T extends new (...args: never[]) => object>(ctor: T) => T {
+export function Dto<T = unknown>(
+	options: Partial<Options<T>> = new Options<T>()
+): <C extends new (...args: never[]) => object>(ctor: C) => C {
 	return ClassDecorator.dto(options);
 }

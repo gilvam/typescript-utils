@@ -242,4 +242,106 @@ describe('ObjectUtil', () => {
 			expect(result).toEqual([]);
 		});
 	});
+
+	describe('fillEmpty', () => {
+		it('deve substituir valores null, undefined e string vazia pelos valores do fallback', () => {
+			const fallback = { a: 'a', b: 'b', c: 'c' };
+			const value = { a: null, b: undefined, c: '' };
+			expect(ObjectUtil.fillEmpty(value, fallback)).toEqual({ a: 'a', b: 'b', c: 'c' });
+		});
+
+		it('deve manter os valores preenchidos do value mesmo quando o fallback tem outro valor', () => {
+			const fallback = { a: 'a', b: 'b' };
+			const value = { a: 'novo', b: null };
+			expect(ObjectUtil.fillEmpty(value, fallback)).toEqual({ a: 'novo', b: 'b' });
+		});
+
+		it('deve preservar valores falsy que não são vazios (0 e false)', () => {
+			const fallback = { a: 1, b: true };
+			const value = { a: 0, b: false };
+			expect(ObjectUtil.fillEmpty(value, fallback)).toEqual({ a: 0, b: false });
+		});
+
+		it('deve preencher valores aninhados profundamente', () => {
+			const fallback = { user: { name: 'pikachu', address: { city: 'kanto' } } };
+			const value = { user: { name: 'raichu', address: { city: '' } } };
+			expect(ObjectUtil.fillEmpty(value, fallback)).toEqual({
+				user: { name: 'raichu', address: { city: 'kanto' } }
+			});
+		});
+
+		it('deve preencher um objeto inteiro quando o value está undefined', () => {
+			const fallback = { other: { officialArtwork: { default: '25.png' } } };
+			const value = { other: undefined };
+			expect(ObjectUtil.fillEmpty(value, fallback)).toEqual({
+				other: { officialArtwork: { default: '25.png' } }
+			});
+		});
+
+		it('deve mesclar arrays elemento a elemento por índice', () => {
+			const fallback = [{ id: 1, name: 'a' }];
+			const value = [{ id: null, name: 'b' }];
+			expect(ObjectUtil.fillEmpty(value, fallback)).toEqual([{ id: 1, name: 'b' }]);
+		});
+
+		it('deve aplicar o mesmo fallback (objeto único) a cada elemento de um array', () => {
+			const fallback = { id: 1, name: 'default' };
+			const value = [{ id: null, name: 'a' }, { id: 2, name: '' }];
+			expect(ObjectUtil.fillEmpty(value, fallback)).toEqual([
+				{ id: 1, name: 'a' },
+				{ id: 2, name: 'default' }
+			]);
+		});
+
+		it('deve clonar o fallback em vez de compartilhar a referência', () => {
+			const fallback = { nested: { value: 'x' } };
+			const value = { nested: undefined };
+			const result = ObjectUtil.fillEmpty<typeof fallback>(value, fallback);
+			expect(result.nested).toEqual(fallback.nested);
+			expect(result.nested).not.toBe(fallback.nested);
+		});
+
+		it('deve substituir o objeto inteiro pelo fallback quando o value está vazio', () => {
+			const fallback = { a: 1, b: 2 };
+			expect(ObjectUtil.fillEmpty(null, fallback)).toEqual({ a: 1, b: 2 });
+			expect(ObjectUtil.fillEmpty(undefined, fallback)).toEqual({ a: 1, b: 2 });
+		});
+
+		it('deve preencher todas as chaves do fallback quando o value é um objeto vazio', () => {
+			const fallback = { a: 1, b: 2 };
+			expect(ObjectUtil.fillEmpty({}, fallback)).toEqual({ a: 1, b: 2 });
+		});
+
+		it('deve completar o objeto pokemon do exemplo (cenário completo)', () => {
+			const fallback = {
+				id: 25,
+				name: 'pikachu',
+				experience: 112,
+				sprites: {
+					front: '25.png',
+					back: 'back/25.png',
+					other: { officialArtwork: { default: '25.png' } }
+				},
+				stats: [{ baseStat: 35, stat: { name: 'hp', url: 'https://pokeapi.co/api/v2/stat/1/' } }]
+			};
+			const value = {
+				id: null,
+				name: 'Raichu',
+				experience: 300,
+				sprites: { front: '30.png', back: '', other: undefined },
+				stats: [{ baseStat: 100, stat: { name: undefined, url: '' } }]
+			};
+			expect(ObjectUtil.fillEmpty(value, fallback)).toEqual({
+				id: 25,
+				name: 'Raichu',
+				experience: 300,
+				sprites: {
+					front: '30.png',
+					back: 'back/25.png',
+					other: { officialArtwork: { default: '25.png' } }
+				},
+				stats: [{ baseStat: 100, stat: { name: 'hp', url: 'https://pokeapi.co/api/v2/stat/1/' } }]
+			});
+		});
+	});
 });
